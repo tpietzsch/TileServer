@@ -75,6 +75,11 @@ public class TileRenderer
 		return screenImage;
 	}
 
+	public synchronized BufferedImage getBufferedImage()
+	{
+		return bufferedImage;
+	}
+
 	/**
 	 * Check whether the size of the display component was changed and recreate
 	 * {@link #screenImages} and {@link #screenScaleTransforms} accordingly.

@@ -1,3 +1,5 @@
+package tileserver;
+
 /*
  * Minimal PNG encoder to create PNG streams (and MIDP images) from RGBA arrays.
  *

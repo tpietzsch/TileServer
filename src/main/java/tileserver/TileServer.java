@@ -1,3 +1,5 @@
+package tileserver;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -7,11 +9,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.io.ImgIOException;
-import net.imglib2.io.ImgOpener;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 import org.xml.sax.SAXException;
 
@@ -49,19 +47,9 @@ public class TileServer
 	{
 		private final TileGenerator tileGenerator;
 
-		private final byte [] imgData;
-
 		public ImgHandler( final boolean encode ) throws ImgIOException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, ParserConfigurationException, SAXException
 		{
 			tileGenerator = new TileGenerator( "/Users/tobias/Desktop/e012/test5.xml" );
-
-			final String fn = "/Users/tobias/workspace/catmaid-data/project1/e012t100/20/0_1_0.jpg";
-			final UnsignedByteType type = new UnsignedByteType();
-			final ArrayImgFactory< UnsignedByteType > factory = new ArrayImgFactory< UnsignedByteType >();
-			final ImgOpener opener = new ImgOpener();
-			final Img< UnsignedByteType > img = opener.openImg( fn, factory, type );
-
-			imgData = EncodeJpeg.encodeJpeg( img );
 		}
 
 		public static Map< String, String > getParameterMap( final String query )
@@ -81,8 +69,6 @@ public class TileServer
 		public void handle( final HttpExchange t ) throws IOException
 		{
 			final URI uri = t.getRequestURI();
-//			System.out.println( "request uri = " + uri );
-//			System.out.println( "query = " + uri.getQuery() );
 			final Map< String, String > params = getParameterMap( uri.getQuery() );
 
 			final double x = Double.parseDouble( params.get( "x" ) );
@@ -91,13 +77,13 @@ public class TileServer
 			final int timepoint = 0;
 			final int tileW = Integer.parseInt( params.get( "width" ) );
 			final int tileH = Integer.parseInt( params.get( "height" ) );
-			tileGenerator.getTile( x, y, z, timepoint, tileW, tileH );
 
 			final Headers responseHeaders = t.getResponseHeaders();
 			responseHeaders.add( "Content-Type", "image/jpeg" );
-			t.sendResponseHeaders( 200, imgData.length );
+			responseHeaders.add( "Cache-Control", "max-age=300" );
+			t.sendResponseHeaders( 200, 0 );
 			final OutputStream os = t.getResponseBody();
-			os.write( imgData );
+			tileGenerator.getTile( x, y, z, timepoint, tileW, tileH, os );
 			os.close();
 		}
 	}

@@ -1,3 +1,5 @@
+package tileserver;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.io.ImgIOException;
 import net.imglib2.io.ImgOpener;
+import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import viewer.GuiHelpers;
 
@@ -24,7 +27,7 @@ public class EncodeJpeg
 	public static byte[] encodeJpeg( final RandomAccessibleInterval< UnsignedByteType > img ) throws IOException
 	{
 		final ARGBScreenImage argb = new ARGBScreenImage( ( int ) img.dimension( 0 ), ( int ) img.dimension( 1 ) );
-		new XYProjector<>( img, argb, new RealARGBConverter< UnsignedByteType >( 0, 255 ) ).map();
+		new XYProjector<UnsignedByteType, ARGBType>( img, argb, new RealARGBConverter< UnsignedByteType >( 0, 255 ) ).map();
 		final BufferedImage bi = GuiHelpers.getBufferedImage( argb );
 
 		final ImageWriter jpegWriter = ImageIO.getImageWritersByFormatName( "jpeg" ).next();
